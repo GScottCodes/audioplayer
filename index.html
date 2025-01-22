@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300i,400" rel="stylesheet">
+   <style type="text/css">
+     body {
+      background-color: #100e17;
+      font-family: 'Open Sans', sans-serif;
+
+    }
+
+    .container {
+      position: absolute;
+      height: 100px;
+      width: 1130px;
+      top: 60px;
+      left: calc(50% - 560px);
+      display: flex;
+    }
+
+    .card {
+      display: flex;
+      height: 280px;
+      width: 1500px;
+      background-color: #17141d;
+      border-radius: 10px;
+      box-shadow: -1rem 0 3rem #000;
+      transition: 0.4s ease-out;
+      position: relative;
+      left: 0px;
+      cursor: pointer;
+    }
+
+    .card:not(:first-child) {
+      margin-left: -20px;
+    }
+
+    .card:hover {
+      transform: translateY(-20px);
+      transition: 0.4s ease-out;
+    }
+
+    .card:hover ~ .card {
+      position: relative;
+      left: 50px;
+      transition: 0.4s ease-out;
+    }
+
+    .title {
+      color: white;
+      font-weight: 300;
+      position: absolute;
+      left: 20px;
+      top: 15px;
+    }
+
+    .bar {
+      position: absolute;
+      top: 100px;
+      left: 20px;
+      height: 5px;
+      width: 150px;
+    }
+
+    .emptybar {
+      background-color: #2e3033;
+      width: 100%;
+      height: 100%;
+    }
+
+    .filledbar {
+      position: absolute;
+      top: 0px;
+      z-index: 3;
+      width: 0px;
+      height: 100%;
+      background: rgb(0,154,217);
+      background: linear-gradient(90deg, rgba(0,154,217,1) 0%, rgba(217,147,0,1) 65%, rgba(255,186,0,1) 100%);
+      transition: 0.6s ease-out;
+    }
+
+    .card:hover .filledbar {
+      width: 120px;
+      transition: 0.4s ease-out;
+    }
+
+    .circle {
+      position: absolute;
+      top: 150px;
+      left: calc(50% - 60px);
+    }
+
+    .stroke {
+      stroke: white;
+      stroke-dasharray: 360;
+      stroke-dashoffset: 360;
+      transition: 0.6s ease-out;
+    }
+
+    svg {
+      fill: #17141d;
+      stroke-width: 2px;
+    }
+
+    .card:hover .stroke {
+      stroke-dashoffset: 100;
+      transition: 0.6s ease-out;
+    }
+
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #17141d;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .taskbar button, .taskbar input {
+      margin: 0 10px;
+      padding: 5px;
+      background-color: #2e3033;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .circle .stroke.highlighted {
+      stroke-dashoffset: 100;
+      transition: 0.6s ease-out;
+      stroke: #00b8d4; /* Highlight color for the stroke */
+    }
+
+     .taskbar input[type="range"] {
+      width: 100px;
+    }
+
+    .card.playing {
+  border: 2px solid #00b8d4; /* Highlight border */
+  box-shadow: 0 0 20px rgba(0, 184, 212, 0.8), 0 0 30px rgba(0, 184, 212, 0.6);
+  z-index: 1; /* Ensure the playing card appears on top */
+  transition: box-shadow 0.4s ease-out;
+}
+.circle .stroke.highlighted {
+     border: 2px solid #00b8d4; /* Highlight border */
+  box-shadow: 0 0 20px rgba(0, 184, 212, 0.8), 0 0 30px rgba(0, 184, 212, 0.6);
+  z-index: 1; /* Ensure the playing card appears on top */
+  transition: box-shadow 0.4s ease-out;
+    }
+
+
+    /* Dropdown styles */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-button {
+      background-color: #2e3033;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .beat-playlist {
+      display: none;
+      top: -140px;
+      position: absolute;
+      background-color: #2e3033;
+      border-radius: 5px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      min-width: 160px;
+      z-index: 1;
+    }
+
+    .beat-playlist button {
+      background-color: #2e3033;
+      color: white;
+      border: none;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid #444;
+    }
+
+    .beat-playlist button:hover {
+      background-color: #575757;
+    }
+
+    .dropdown:hover .beat-playlist {
+      display: block;
+    }
+    .repeated-container {
+       position: absolute;
+      height: 100px;
+      width: 930px;
+      top: 450px;
+      left: calc(50% - 500px);
+      display: flex;
+      /* Allow cards to wrap to new lines */
+    }
+    .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #17141d;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            z-index: 1000;
+        }
+        .header a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+        .header a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding-top: 50px; /* Adjust based on header height */
+        }
+
+.ducking-playlist {
+      display: none;
+      top: -100px;
+      position: absolute;
+      background-color: #2e3033;
+      border-radius: 5px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      min-width: 160px;
+      z-index: 1;
+    }
+
+    .ducking-playlist button {
+      background-color: #2e3033;
+      color: white;
+      border: none;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid #444;
+    }
+
+    .ducking-playlist button:hover {
+      background-color: #575757;
+    }
+
+    .dropdown:hover .ducking-playlist {
+      display: block;
+    }
+    .tempo-playlist {
+      display: none;
+      top: -100px;
+      position: absolute;
+      background-color: #2e3033;
+      border-radius: 5px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      min-width: 160px;
+      z-index: 1;
+    }
+
+    .tempo-playlist button {
+      background-color: #2e3033;
+      color: white;
+      border: none;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid #444;
+    }
+
+    .tempo-playlist button:hover {
+      background-color: #575757;
+    }
+
+    .dropdown:hover .tempo-playlist {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+        <a href="#">AFROBEAT LOOPS</a>
+        <a href="#">EMO LOOPS</a>
+        <a href="#">HARD LOOPS (90BPM AND UP)</a>
+        <a href="#">POP LOOPS</a>
+        <a href="#">R&B LOOPS</a>
+        <a href="#">SOUL LOOPS</a>
+        <a href="#">TRAP LOOPS</a>
+    </div>
+
+   
+  <div class="container">
+    <div class="card" style="background-image: url(music-1.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song1', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>BARBADOS<br> EbMINOR</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song1" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-2.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song2', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>CLOUDS 98BPM <br>EMINOR</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song2" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-3.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song3', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>ENZO 93BPM <br>G MINOR</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song3" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-4.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song4', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>FLIGHT 102BPM<br> DMINOR</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song4" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-11.webp); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song5', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>FLIGHT 102BPM<br> DMINOR</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song5" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-6.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song6', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>LAST SAMURAI<br> 100BPM</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song6" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+
+  </div>
+
+
+<div class="repeated-container">
+    <div class="card" style="background-image: url(music-7.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song7', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>PAPER 97BPM</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song7" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-9.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song8', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>PEACHHEAD 171<br> BbMINOR)</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song8" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-10.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song9', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>SERVICE 94BPM<br> AMINOR</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song9" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-12.jpg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song10', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>STANKS 118BPM 1</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song10" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+    <div class="card" style="background-image: url(music-13.jpeg); background-size: 200px; background-repeat: no-repeat;" onclick="playSong('song11', this)">
+      <h3 class="title"></h3>
+      <div class="bar">
+        <div class="emptybar"></div>
+        <div class="filledbar"></div>
+      </div>
+      <div class="circle">
+        <p style="color: white; margin: 0px; font-size: 15px;">AFROBEAT LOOPS/<br>SUNGLASS 100BPM<br> BMINOR</p>
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <circle class="stroke" cx="60" cy="60" r="50" />
+        </svg>
+      </div>
+      <audio id="song11" src="AFROBEAT LOOPS/SERVICE 94BPM AMINOR.mp3"></audio>
+    </div>
+   
+  </div>
+
+
+
+  <div class="taskbar">
+    <input type="range" id="songSlider" min="0" value="0" class="song-slider" onchange="seekSong()">
+    <span id="currentTime" style="color: white; margin-left: 10px;">0:00</span>
+    <span style="color: white;">/</span>
+    <span id="totalTime" style="color: white; margin-right: 10px;">0:00</span>
+    <button onclick="previousSong()">Previous</button>
+    <button onclick="togglePlay()">Play/Pause</button>
+    <button onclick="nextSong()">Next</button>
+    <label for="setVolume" style="color: white;">Volume:</label>
+    <input type="range" min="0" max="100" value="99" id="volumeSlider" class="volume-slider" oninput="setVolume()">
+    </div>
+ <script type="text/javascript">
+var songs = ['song1', 'song2', 'song3', 'song4', 'song5', 'song6', 'song7', 'song8', 'song9', 'song10', 'song11'];
+var currentSongIndex = 0;
+var volumeSlider = document.getElementById('volumeSlider');
+
+// Function to play the selected song
+function playSong(songId, card) {
+    stopAllSongs();
+    var song = document.getElementById(songId);
+    song.play();
+    currentSongIndex = songs.indexOf(songId);
+    highlightPlayingCard(card);
+    song.volume = volumeSlider.value / 100;
+
+    // Play the next song when the current one ends
+    song.onended = function () {
+        nextSong();
+    };
+}
+
+// Function to stop all songs and reset highlights
+function stopAllSongs() {
+    songs.forEach(function (songId) {
+        var song = document.getElementById(songId);
+        song.pause();
+        song.currentTime = 0;
+    });
+    clearCardHighlights();
+}
+
+// Function to highlight the currently playing card
+function highlightPlayingCard(card) {
+    clearCardHighlights();
+    card.classList.add('playing'); // Add a class to style the playing card
+}
+
+// Function to clear highlights from all cards
+function clearCardHighlights() {
+    var cards = document.querySelectorAll('.card');
+    cards.forEach(function (card) {
+        card.classList.remove('playing');
+    });
+}
+
+// Function to play the next song
+function nextSong() {
+    currentSongIndex = (currentSongIndex + 1) % songs.length;
+    stopAllSongs();
+
+    // Select the correct card based on the index
+    var card = document.querySelectorAll('.card')[currentSongIndex];
+    playSong(songs[currentSongIndex], card);
+}
+
+// Function to play the previous song
+function previousSong() {
+    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    stopAllSongs();
+
+    // Select the correct card based on the index
+    var card = document.querySelectorAll('.card')[currentSongIndex];
+    playSong(songs[currentSongIndex], card);
+}
+
+// Function to toggle play/pause for the current song
+function togglePlay() {
+    var song = document.getElementById(songs[currentSongIndex]);
+    if (song.paused) {
+        song.play();
+    } else {
+        song.pause();
+    }
+}
+
+// Function to update the time slider
+function seekSong() {
+    var song = document.getElementById(songs[currentSongIndex]);
+    var songSlider = document.getElementById('songSlider');
+    song.currentTime = (songSlider.value / 100) * song.duration;
+}
+
+// Function to update the time and progress bar
+function updateTimeSlider() {
+    var song = document.getElementById(songs[currentSongIndex]);
+    var currentTime = song.currentTime;
+    var totalTime = song.duration;
+
+    var songSlider = document.getElementById('songSlider');
+    songSlider.value = (currentTime / totalTime) * 100;
+
+    var currentMinutes = Math.floor(currentTime / 60);
+    var currentSeconds = Math.floor(currentTime % 60);
+    var totalMinutes = Math.floor(totalTime / 60);
+    var totalSeconds = Math.floor(totalTime % 60);
+
+    document.getElementById('currentTime').textContent =
+        currentMinutes + ':' + (currentSeconds < 10 ? '0' : '') + currentSeconds;
+    document.getElementById('totalTime').textContent =
+        totalMinutes + ':' + (totalSeconds < 10 ? '0' : '') + totalSeconds;
+}
+
+// Call updateTimeSlider function every second
+setInterval(updateTimeSlider, 1000);
+
+</script>
+
+</body>
+</html>
